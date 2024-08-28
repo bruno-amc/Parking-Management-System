@@ -24,15 +24,17 @@ def create_tables():
                     ''')
     
     #criação da tabela vagas / table spots
-    cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS Vagas (
-                   id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   numero INTEGER NOT NULL,
-                   ocupada BOOLEAN NOT NULL DEFAULT 0,
-                   prioritaria BOOLEAN NOT NULL DEFAULT 0
-                   )    
-                    ''')
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Vagas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            numero INTEGER NOT NULL,
+            ocupada BOOLEAN NOT NULL DEFAULT 0,
+            prioritaria BOOLEAN NOT NULL DEFAULT 0,
+            ticket_id INTEGER,
+            FOREIGN KEY(ticket_id) REFERENCES Tickets(id)
+        )
+        ''')
 
     #criação da tabela de pagamentos / payments table
     cursor.execute('''
@@ -46,6 +48,24 @@ def create_tables():
                    FOREIGN KEY(ticket_id) REFERENCES Tickets(id)
                    )   
                     ''')
+    
+    # Adiciona uma nova tabela para configurações gerais do sistema
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Configuracoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            chave TEXT NOT NULL UNIQUE,
+            valor TEXT
+        )
+    ''')
+
+    # Verifica se já existe uma configuração para o total de vagas
+    cursor.execute("SELECT * FROM Configuracoes WHERE chave = 'total_vagas'")
+    if cursor.fetchone() is None:
+        cursor.execute("INSERT INTO Configuracoes (chave, valor) VALUES ('total_vagas', '100')")
+
+
+
+
      # Criação da tabela de Administração / adm table
     cursor.execute('''
                 CREATE TABLE IF NOT EXISTS Administracao (
